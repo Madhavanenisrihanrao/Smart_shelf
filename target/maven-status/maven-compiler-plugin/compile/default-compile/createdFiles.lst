@@ -1,0 +1,9 @@
+com\example\oops\OopsApplication.class
+com\example\oops\repository\UserRepository.class
+com\example\oops\repository\ProductRepository.class
+com\example\oops\service\ProductService.class
+com\example\oops\controller\ProductController.class
+com\example\oops\model\User.class
+com\example\oops\service\UserService.class
+com\example\oops\model\Product.class
+com\example\oops\controller\UserController.class
