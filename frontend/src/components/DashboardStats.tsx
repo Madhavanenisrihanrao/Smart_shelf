@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -7,8 +8,12 @@ import {
   Package,
   ShoppingCart,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  RefreshCw,
+  Filter,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { StatDetailModal } from "./StatDetailModal";
 
 interface StatCardProps {
   title: string;
@@ -71,47 +76,110 @@ const StatCard = ({ title, value, change, changeType, icon, description, onClick
 export function DashboardStats() {
   const navigate = useNavigate();
 
+  // State for modal visibility and selected stat
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedStat, setSelectedStat] = useState<string | null>(null);
+
+  // State for filters (example: date range)
+  const [filterDateRange, setFilterDateRange] = useState<string>("Last Month");
+
+  // Dummy detailed data for each stat
+  const statDetailsData: Record<string, string> = {
+    "Total Revenue": "Detailed revenue data...\n- Jan: ₹40,000\n- Feb: ₹45,231\n- Mar: ₹50,000",
+    "Total Orders": "Detailed orders data...\n- Jan: 1,100\n- Feb: 1,234\n- Mar: 1,300",
+    "Inventory Items": "Detailed inventory data...\n- Total items: 856\n- Low stock: 12",
+    "Low Stock Alerts": "Detailed alerts data...\n- New alerts: 3\n- Total alerts: 12",
+  };
+
+  const openModal = (statTitle: string) => {
+    setSelectedStat(statTitle);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelectedStat(null);
+  };
+
+  const handleRefresh = () => {
+    console.log("Refreshing stats...");
+    // Simulate refresh by updating dummy data or state if needed
+    alert("Refreshing stats...");
+  };
+
+  const handleFilterChange = () => {
+    console.log("Filter changed");
+    // Simulate filter change by toggling date range for demo
+    setFilterDateRange(prev => (prev === "Last Month" ? "Last Quarter" : "Last Month"));
+    alert("Filter changed to " + (filterDateRange === "Last Month" ? "Last Quarter" : "Last Month"));
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <StatCard
-        title="Total Revenue"
-        value="₹45,231"
-        change="+12.5% from last month"
-        changeType="positive"
-        icon={<DollarSign className="w-5 h-5" />}
-        description="Monthly revenue target: ₹50,000"
-        onClick={() => navigate("/analytics")}
-      />
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Dashboard Stats</h2>
+        <div className="flex space-x-2">
+          <Button variant="outline" size="sm" onClick={handleFilterChange} className="flex items-center space-x-1">
+            <Filter className="w-4 h-4" />
+            <span>{filterDateRange}</span>
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleRefresh} className="flex items-center space-x-1">
+            <RefreshCw className="w-4 h-4" />
+            <span>Refresh</span>
+          </Button>
+        </div>
+      </div>
 
-      <StatCard
-        title="Total Orders"
-        value="1,234"
-        change="+8.2% from last month"
-        changeType="positive"
-        icon={<ShoppingCart className="w-5 h-5" />}
-        description="Average order value: ₹367"
-        onClick={() => navigate("/orders")}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatCard
+          title="Total Revenue"
+          value="₹45,231"
+          change="+12.5% from last month"
+          changeType="positive"
+          icon={<DollarSign className="w-5 h-5" />}
+          description="Monthly revenue target: ₹50,000"
+          onClick={() => openModal("Total Revenue")}
+        />
 
-      <StatCard
-        title="Inventory Items"
-        value="856"
-        change="-2.1% from last month"
-        changeType="negative"
-        icon={<Package className="w-5 h-5" />}
-        description="Items running low: 12"
-        onClick={() => navigate("/inventory")}
-      />
+        <StatCard
+          title="Total Orders"
+          value="1,234"
+          change="+8.2% from last month"
+          changeType="positive"
+          icon={<ShoppingCart className="w-5 h-5" />}
+          description="Average order value: ₹367"
+          onClick={() => openModal("Total Orders")}
+        />
 
-      <StatCard
-        title="Low Stock Alerts"
-        value="12"
-        change="+3 new alerts"
-        changeType="negative"
-        icon={<AlertTriangle className="w-5 h-5" />}
-        description="Requires immediate attention"
-        onClick={() => navigate("/alerts")}
-      />
-    </div>
+        <StatCard
+          title="Inventory Items"
+          value="856"
+          change="-2.1% from last month"
+          changeType="negative"
+          icon={<Package className="w-5 h-5" />}
+          description="Items running low: 12"
+          onClick={() => openModal("Inventory Items")}
+        />
+
+        <StatCard
+          title="Low Stock Alerts"
+          value="12"
+          change="+3 new alerts"
+          changeType="negative"
+          icon={<AlertTriangle className="w-5 h-5" />}
+          description="Requires immediate attention"
+          onClick={() => openModal("Low Stock Alerts")}
+        />
+      </div>
+
+      {selectedStat && (
+        <StatDetailModal
+          isOpen={modalOpen}
+          onClose={closeModal}
+          title={selectedStat}
+          data={statDetailsData[selectedStat]}
+        />
+      )}
+    </>
   );
 }

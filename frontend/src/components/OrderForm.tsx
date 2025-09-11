@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,19 +34,54 @@ interface OrderFormData {
   notes: string;
 }
 
+interface Order {
+  id: string;
+  customerName: string;
+  items: number;
+  total: number;
+  status: "pending" | "processing" | "completed" | "cancelled";
+  date: string;
+  paymentMethod: string;
+}
+
 interface OrderFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (orderData: OrderFormData) => void;
+  isEdit?: boolean;
+  isView?: boolean;
+  orderToEdit?: Order | null;
 }
 
-export function OrderForm({ isOpen, onClose, onSubmit }: OrderFormProps) {
+export function OrderForm({ isOpen, onClose, onSubmit, isEdit = false, isView = false, orderToEdit }: OrderFormProps) {
   const [formData, setFormData] = useState<OrderFormData>({
     customerName: "",
     items: [{ id: "1", name: "", quantity: 1, price: 0 }],
     paymentMethod: "",
     notes: "",
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      if (isEdit && orderToEdit) {
+        // Pre-fill form for editing
+        setFormData({
+          customerName: orderToEdit.customerName,
+          items: [], // Note: Since orderToEdit.items is a number, we can't pre-fill detailed items. In a real app, you'd have detailed item data.
+          paymentMethod: orderToEdit.paymentMethod,
+          notes: "",
+        });
+      } else {
+        // Reset for new order
+        setFormData({
+          customerName: "",
+          items: [{ id: "1", name: "", quantity: 1, price: 0 }],
+          paymentMethod: "",
+          notes: "",
+        });
+      }
+    }
+  }, [isOpen, isEdit, orderToEdit]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,9 +154,16 @@ export function OrderForm({ isOpen, onClose, onSubmit }: OrderFormProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create New Order</DialogTitle>
+          <DialogTitle>
+            {isView ? "View Order" : isEdit ? "Edit Order" : "Create New Order"}
+          </DialogTitle>
           <DialogDescription>
-            Enter the order details below. Add multiple items if needed.
+            {isView
+              ? "Review the order details below."
+              : isEdit
+              ? "Update the order details below."
+              : "Enter the order details below. Add multiple items if needed."
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -251,7 +293,7 @@ export function OrderForm({ isOpen, onClose, onSubmit }: OrderFormProps) {
               Cancel
             </Button>
             <Button type="submit" className="bg-gradient-primary hover:opacity-90">
-              Create Order
+              {isEdit ? "Update Order" : "Create Order"}
             </Button>
           </DialogFooter>
         </form>

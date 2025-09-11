@@ -1,28 +1,30 @@
-# TODO - Order Management Page Functionality
+# TODO: Add Functionality to Orders Management Components
 
-## Steps to Complete
+## Tasks Completed
 
-- [ ] Review the Orders page component (src/pages/Orders.tsx) for:
-  - Proper state management of orders
-  - Filtering and searching functionality
-  - Display of order stats and badges
-  - Integration with OrderForm component for adding new orders
+- [x] Update Smart_shelf/frontend/src/pages/Orders.tsx
+  - [x] Implement View button: Open OrderForm in read-only mode to review order details
+  - [x] Implement Download button: Generate and download order details as a text file
+  - [x] Add Edit button: Open OrderForm pre-filled for editing
+  - [x] Add Delete button: Remove orders from the list
+  - [x] Update state to handle edit, delete, and status changes
 
-- [ ] Review the OrderForm component (src/components/OrderForm.tsx) for:
-  - Form validation and input handling
-  - Adding/removing order items
-  - Calculating order totals
-  - Proper submission and resetting of form
+- [x] Update Smart_shelf/frontend/src/components/OrderForm.tsx
+  - [x] Add support for editing: New props `isEdit`, `orderToEdit`
+  - [x] Pre-fill form fields when editing
+  - [x] Change submit logic to update existing orders
+  - [x] Update dialog title/description for edit mode
 
-- [ ] Implement any missing functionality or fix issues found during review:
-  - Ensure new orders are added correctly to the orders list
-  - Ensure filters and search update the displayed orders correctly
-  - Ensure UI elements like badges and stats update dynamically
+## Analytics Dashboard Tasks
 
-- [ ] Test the full flow:
-  - Open Orders page
-  - Use filters and search
-  - Add new orders via OrderForm
-  - Verify orders list updates and stats reflect changes
+- [x] Update Smart_shelf/frontend/src/pages/Analytics.tsx
+  - [x] Create comprehensive analytics dashboard with stat cards
+  - [x] Implement drill-down modals for stat cards using StatDetailModal
+  - [x] Add export/download reports functionality
+  - [x] Add filters for date ranges
+  - [x] Add refresh controls to update stats in real-time
 
-- [ ] Final cleanup and code quality checks
+## Followup Steps
+- [ ] Test view, edit, download, and delete functionalities for orders
+- [ ] Ensure UI updates correctly after changes
+- [ ] Test analytics dashboard functionalities

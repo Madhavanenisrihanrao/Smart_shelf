@@ -124,6 +124,9 @@ export default function Orders() {
     order.status === "completed" ? sum + order.total : sum, 0
   );
 
+  const [orderToEdit, setOrderToEdit] = useState<Order | null>(null);
+  const [isViewMode, setIsViewMode] = useState(false);
+
   const handleNewOrder = (orderData: any) => {
     const newOrder: Order = {
       id: `ORD-${String(orders.length + 1).padStart(3, '0')}`,
@@ -136,6 +139,62 @@ export default function Orders() {
     };
 
     setOrders(prev => [newOrder, ...prev]);
+  };
+
+  const handleEditOrder = (order: Order) => {
+    setOrderToEdit(order);
+    setIsViewMode(false);
+    setIsOrderFormOpen(true);
+  };
+
+  const handleViewOrder = (order: Order) => {
+    setOrderToEdit(order);
+    setIsViewMode(true);
+    setIsOrderFormOpen(true);
+  };
+
+  const handleDeleteOrder = (orderId: string) => {
+    if (confirm("Are you sure you want to delete this order?")) {
+      setOrders(prev => prev.filter(order => order.id !== orderId));
+    }
+  };
+
+  const handleUpdateOrder = (updatedOrderData: any) => {
+    setOrders(prev =>
+      prev.map(order =>
+        order.id === orderToEdit?.id
+          ? {
+              ...order,
+              customerName: updatedOrderData.customerName,
+              items: updatedOrderData.items.length,
+              total: updatedOrderData.items.reduce((sum: number, item: any) => sum + (item.quantity * item.price), 0),
+              paymentMethod: updatedOrderData.paymentMethod,
+              notes: updatedOrderData.notes,
+            }
+          : order
+      )
+    );
+    setOrderToEdit(null);
+    setIsOrderFormOpen(false);
+  };
+
+  const handleDownloadOrder = (order: Order) => {
+    const orderDetails = `
+Order ID: ${order.id}
+Customer: ${order.customerName}
+Items: ${order.items}
+Total: ₹${order.total}
+Payment Method: ${order.paymentMethod}
+Date: ${new Date(order.date).toLocaleDateString()}
+Status: ${order.status}
+    `;
+    const blob = new Blob([orderDetails], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${order.id}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -285,13 +344,19 @@ export default function Orders() {
                     <TableCell>{getStatusBadge(order.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
+                    <Button variant="ghost" size="sm" onClick={() => handleViewOrder(order)}>
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDownloadOrder(order)}>
+                      <Download className="w-4 h-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleEditOrder(order)}>
+                      Edit
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDeleteOrder(order.id)}>
+                      Delete
+                    </Button>
+                  </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -303,8 +368,15 @@ export default function Orders() {
 
       <OrderForm
         isOpen={isOrderFormOpen}
-        onClose={() => setIsOrderFormOpen(false)}
-        onSubmit={handleNewOrder}
+        isEdit={!!orderToEdit && !isViewMode}
+        isView={isViewMode}
+        orderToEdit={orderToEdit}
+        onClose={() => {
+          setIsOrderFormOpen(false);
+          setOrderToEdit(null);
+          setIsViewMode(false);
+        }}
+        onSubmit={orderToEdit ? handleUpdateOrder : handleNewOrder}
       />
     </div>
   );
